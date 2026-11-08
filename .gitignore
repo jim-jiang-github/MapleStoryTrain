@@ -257,8 +257,12 @@ train/.cache/
 # （训练包 wz_mob_trainkit.zip 已被上面的 train/kit/ 覆盖，这里不再放 *.zip，
 #  免得以后要提交某些小压缩包素材时被误挡）
 
-# 训练结果表 / 中间报表：validate、predict_test、boost_weak 会重新生成
-train/reports/
+# 训练结果表 / 中间报表：批量 manifest 会重新生成，但 per-class 分析文本
+# （全类排名/弱类清单/final val）是类别合并决策的依据，要进 git
+train/reports/**
+!train/reports/*.txt
+!train/reports/_fail_maps.json
+!train/reports/_fast_maps.json
 review/
 
 # 自检页（review_gallery.py 产出）

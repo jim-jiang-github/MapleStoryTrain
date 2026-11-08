@@ -1,0 +1,83 @@
+[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 1% ──────────── 1/94 5.0s/it 1.5s<7:43[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 2% ──────────── 2/94 1.8it/s 1.7s<50.1s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 3% ──────────── 3/94 2.9it/s 1.9s<31.3s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 4% ╸─────────── 4/94 3.8it/s 2.0s<23.5s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 6% ╸─────────── 6/94 6.5it/s 2.2s<13.5s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 8% ━─────────── 8/94 8.4it/s 2.3s<10.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 10% ━─────────── 10/94 9.6it/s 2.5s<8.8s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 12% ━╸────────── 12/94 10.4it/s 2.7s<7.9s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 14% ━╸────────── 14/94 11.4it/s 2.8s<7.0s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 17% ━━────────── 16/94 11.3it/s 3.0s<6.9s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 19% ━━────────── 18/94 11.9it/s 3.1s<6.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 21% ━━╸───────── 20/94 12.9it/s 3.3s<5.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 23% ━━╸───────── 22/94 13.4it/s 3.4s<5.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 25% ━━━───────── 24/94 14.1it/s 3.5s<5.0s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 27% ━━━───────── 26/94 14.6it/s 3.7s<4.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 29% ━━━╸──────── 28/94 14.4it/s 3.8s<4.6s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 31% ━━━╸──────── 30/94 14.1it/s 4.0s<4.5s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 34% ━━━━──────── 32/94 14.0it/s 4.1s<4.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 36% ━━━━──────── 34/94 13.7it/s 4.3s<4.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 38% ━━━━╸─────── 36/94 13.4it/s 4.4s<4.3s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 40% ━━━━╸─────── 38/94 13.2it/s 4.6s<4.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 42% ━━━━━─────── 40/94 13.1it/s 4.7s<4.1s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 44% ━━━━━─────── 42/94 13.6it/s 4.9s<3.8s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 46% ━━━━━╸────── 44/94 13.4it/s 5.0s<3.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 48% ━━━━━╸────── 46/94 13.4it/s 5.2s<3.6s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 51% ━━━━━━────── 48/94 13.5it/s 5.3s<3.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 53% ━━━━━━────── 50/94 13.5it/s 5.5s<3.3s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 55% ━━━━━━╸───── 52/94 13.4it/s 5.6s<3.1s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 57% ━━━━━━╸───── 54/94 13.5it/s 5.8s<3.0s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 59% ━━━━━━━───── 56/94 13.4it/s 5.9s<2.8s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 61% ━━━━━━━───── 58/94 13.6it/s 6.0s<2.6s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 63% ━━━━━━━╸──── 60/94 13.8it/s 6.2s<2.5s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 65% ━━━━━━━╸──── 62/94 13.6it/s 6.3s<2.3s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 68% ━━━━━━━━──── 64/94 13.5it/s 6.5s<2.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 70% ━━━━━━━━──── 66/94 13.4it/s 6.6s<2.1s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 72% ━━━━━━━━╸─── 68/94 13.2it/s 6.8s<2.0s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 74% ━━━━━━━━╸─── 70/94 13.0it/s 7.0s<1.8s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 76% ━━━━━━━━━─── 72/94 13.0it/s 7.1s<1.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 78% ━━━━━━━━━─── 74/94 13.1it/s 7.3s<1.5s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 80% ━━━━━━━━━╸── 76/94 13.3it/s 7.4s<1.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 82% ━━━━━━━━━╸── 78/94 13.2it/s 7.6s<1.2s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 85% ━━━━━━━━━━── 80/94 13.3it/s 7.7s<1.1s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 87% ━━━━━━━━━━── 82/94 13.5it/s 7.9s<0.9s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 89% ━━━━━━━━━━╸─ 84/94 13.9it/s 8.0s<0.7s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 91% ━━━━━━━━━━╸─ 86/94 13.9it/s 8.1s<0.6s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 93% ━━━━━━━━━━━─ 88/94 14.1it/s 8.3s<0.4s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 95% ━━━━━━━━━━━─ 90/94 13.9it/s 8.4s<0.3s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 97% ━━━━━━━━━━━╸ 92/94 14.0it/s 8.6s<0.1s[K                 Class     Images  Instances      Box(P          R      mAP50  mAP50-95): 100% ━━━━━━━━━━━━ 94/94 10.7it/s 8.8s
+                   all       1490      16225       0.91      0.835      0.905      0.788
+          100100_Snail         38        172      0.904      0.875      0.889      0.778
+     100101_Blue_Snail         38        166       0.85      0.904      0.916      0.832
+           100120_Tino         13         29      0.949          1      0.995      0.884
+            100121_Tiv         30        202       0.98      0.946      0.979      0.916
+1110100_Green_Mushroom         80        431      0.984      0.856      0.949      0.851
+    1110101_Dark_Stump         38        256      0.956      0.836      0.907      0.871
+     1130100_Axe_Stump         27        141      0.896      0.957      0.977       0.92
+         120100_Shroom         21        168          1      0.802      0.904      0.727
+           1210100_Pig         12        106      0.994      0.736      0.971      0.883
+    1210101_Ribbon_Pig         30        233      0.949      0.893      0.953       0.86
+1210102_Orange_Mushroom         97        486      0.964      0.834      0.939      0.882
+      130101_Red_Snail         42        181      0.931      0.939      0.954      0.904
+          210100_Slime         33        363      0.928      0.937      0.975      0.878
+2110200_Horny_Mushroom        175        757      0.987      0.897      0.955      0.895
+2130100_Dark_Axe_Stump         91        427      0.934      0.918      0.961      0.898
+ 2220100_Blue_Mushroom         93        558      0.939       0.91      0.963      0.897
+      2230100_Evil_Eye        163       1028       0.93      0.908      0.956      0.838
+2230101_Zombie_Mushroom        170        594      0.926      0.848      0.912      0.866
+     2230102_Wild_Boar         38        225      0.953      0.911      0.954      0.847
+2230131_Annoyed_Zombie_Mushroom         45        143      0.862      0.881      0.951      0.918
+       3000001_Fairy_1         37        128      0.986      0.922      0.973      0.859
+       3000004_Fairy_4         12         97      0.932      0.849      0.902      0.803
+   3000005_Brown_Teddy         13        105      0.968      0.877      0.926      0.795
+    3110101_Pink_Teddy         26        222      0.979      0.928       0.97      0.832
+     3210100_Fire_Boar         19        121      0.966      0.876       0.93      0.821
+      3210204_Roloduck         13        163      0.894      0.908      0.952      0.769
+         3210800_Lupin         24        255      0.941      0.902      0.953      0.843
+     3230101_Jr_Wraith         17         57      0.972      0.965      0.983       0.88
+        3230102_Lorang         37        286      0.913      0.958       0.98      0.873
+    3230200_Star_Pixie         35        121      0.944      0.967       0.99      0.906
+   3230301_Jr_Boogie_2         86        291      0.846      0.863      0.903      0.745
+    3230305_Toy_Trojan         13        100      0.993       0.97      0.977      0.898
+3300000_Renegade_Spores         13         93       0.98      0.892      0.921      0.828
+3300001_Poison_Mushroom         26        253       0.96      0.942      0.959      0.914
+3300004_Royal_Guard_Pepe         19        173      0.991      0.861      0.933      0.804
+3400000_Cherry_Bubble_Tea         16        136      0.941       0.89      0.949      0.851
+3400001_Mango_Bubble_Tea         16        146      0.948      0.871      0.946      0.828
+  4230101_Zombie_Lupin         24        234      0.987      0.932      0.985      0.876
+         4230104_Clang         37        306      0.947      0.922      0.969      0.857
+   4230106_Lunar_Pixie         35        136      0.948      0.935      0.973      0.885
+        4230107_Flyeye         36        259      0.875       0.78      0.849       0.65
+  4230116_Barnard_Gray         18        117      0.392      0.829      0.709      0.602
+     4230117_Zeta_Gray         42        269      0.906      0.612      0.804      0.623
+    4230118_Ultra_Gray         24        155       0.98      0.624      0.875      0.707
+      4230125_Skeledog         10         69      0.925      0.893      0.958      0.833
+      4230126_Mummydog         11         79      0.968      0.835      0.915      0.714
+    4230300_Moon_Bunny         20        159      0.979      0.876      0.941      0.749
+    4240000_Chief_Gray         24        171      0.928      0.825      0.918      0.746
+   4250000_Mossy_Snail         12         48      0.956      0.916      0.927      0.787
+      4250001_Tree_Rod         12        126       0.94      0.889      0.947      0.825
+       5100000_Jr_Yeti         26        208      0.876      0.711      0.782      0.651
+        5100003_Hodori         18        124      0.872       0.79      0.831      0.672
+         5100005_Hogul         18        137      0.846      0.912      0.886      0.739
+       5120500_Grizzly         18        110      0.918      0.909      0.962      0.809
+5120504_Wooden_Target_Dummy         18        271      0.998      0.886      0.939      0.887
+      5120505_Reindeer         18        142      0.939      0.869      0.935      0.834
+   5130101_Stone_Golem         37        216      0.756      0.431      0.636      0.562
+5130102_Dark_Stone_Golem         58        280      0.915      0.812      0.887      0.811
+ 5130107_Coolie_Zombie         48        619      0.771      0.895      0.864      0.594
+  5130108_Miner_Zombie         36        237       0.97      0.946      0.972      0.851
+     5250001_Stone_Bug         12         78      0.796      0.897      0.929      0.744
+         6130203_Panda         18        161      0.948      0.901      0.962      0.808
+       6130204_Mr_Alli         18        238      0.912      0.882      0.933      0.785
+  6130207_Peach_Monkey         18        128      0.929      0.922       0.96      0.841
+       7130104_Captain         12        148      0.972      0.698      0.897      0.726
+          9400000_Crow         35        138          1          0      0.359      0.194
+     9400577_Firebrand         12         86      0.927      0.889      0.967      0.732
+    9400584_Leprechaun         19         63      0.931      0.873      0.891      0.742
+  9400588_Phantom_Tree         22         71      0.987      0.944      0.961      0.918
+    5140000_White_Fang         26        217      0.891       0.76      0.885      0.688
+   5150000_Mixed_Golem         12        104      0.396      0.769      0.563      0.532
+     8190000_Jr_Newtie         12         81      0.546      0.787      0.615      0.542
+     8190001_Jr_Newtie         12         78      0.762      0.115      0.611      0.451
+      8190003_Skelegon         18        115      0.763       0.67      0.791      0.673
+   8190004_Skelosaurus         18        117      0.842      0.863       0.93      0.741
+9100001_Super_Jr_Necki         23        177          1          0      0.804      0.692
+    9000200_Evil_Eye_2         30        179      0.904      0.961       0.98      0.881
+9000201_Zombie_Mushroom_2         30        161      0.915      0.963      0.987       0.94
+Speed: 1.0ms preprocess, 2.0ms inference, 0.0ms loss, 0.5ms postprocess per image
+Results saved to [1m/root/wz_mob_trainkit/runs/detect/val[0m
+mAP50-95: 0.7882947289374368 mAP50: 0.9050640597964468
