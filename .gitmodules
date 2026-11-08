@@ -1,0 +1,3 @@
+[submodule "vendor/WzToolkit"]
+	path = vendor/WzToolkit
+	url = https://github.com/jim-jiang-github/WzToolkit.git

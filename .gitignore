@@ -218,3 +218,87 @@ __marimo__/
 
 # Streamlit
 .streamlit/secrets.toml
+
+# ============================================================
+# MapleStoryTrain 项目生成物
+#   判断标准：能不能靠重新跑一条命令再生成？能 -> 不入库。
+# ============================================================
+
+# wztool 渲染缓存：.cache/map/<id>/{map.json,preview*.png}、.cache/mob/<id>/
+#   wztool clear-cache 或任意一次导出都会重建
+.cache/
+
+# 临时产物：yolo_export.py 的渲染/标注验证输出（图片 + label + dataset.yaml）
+.temp/
+
+# 本机 .wz 工作区路径，由 train/src/wztk.py 自动写入，换机器就失效
+workspace.json
+
+# 训练数据集与产物（gen_data.py full 约 1 小时可重建）
+#   images/ labels/ review.html 都在这里；dataset.yaml 还写着本机绝对路径
+#   但 473 类的类别表（classes.json/txt/dataset.yaml）要进 git：类别 id 必须长期稳定，
+#   丢了重生成虽然结果一致，但历史 label 的对应关系就没了凭证
+train/data/**
+!train/data/yolo_r2
+train/data/yolo_r2/**
+!train/data/yolo_r2/classes.json
+!train/data/yolo_r2/classes.txt
+!train/data/yolo_r2/dataset.yaml
+train/runs/
+train/kit/
+train/exports/
+train/.cache/
+
+# 模型权重（体积大、可重新训练/导出，换机器手动拷到 yololab/models/）
+*.pt
+*.pth
+*.onnx
+*.engine
+# （训练包 wz_mob_trainkit.zip 已被上面的 train/kit/ 覆盖，这里不再放 *.zip，
+#  免得以后要提交某些小压缩包素材时被误挡）
+
+# 训练结果表 / 中间报表：validate、predict_test、boost_weak 会重新生成
+train/reports/
+review/
+
+# 自检页（review_gallery.py 产出）
+review.html
+
+# 日志：*.log 之外还要挡 logrotate / 追加写留下的轮转副本
+*.log
+*.log.1
+*.log.2
+*.log.*
+
+# yololab 运行产物与权重
+yololab/out/
+yololab/models/
+
+# 系统 / 编辑器垃圾
+Thumbs.db
+ehthumbs.db
+desktop.ini
+.DS_Store
+.idea/
+.vscode/
+
+# ---- MapleStoryTrain 训练仓库 ----
+# 数据与产物都不进版本库：图像/标注可由 gen_data 重新生成，权重太大
+train/data/yolo_r2/images/
+train/data/yolo_r2/labels/
+train/data/yolo_r2/*.cache
+train/runs/
+train/test_out/
+train/train_out/
+exports/
+temp/
+*.onnx
+*.pt
+# 渲染缓存（WzToolkit 子模块产出，约十几 GB）
+.cache/
+# 工作区路径是本机相关的（指向放 .wz 的目录）
+workspace.json
+# 运行日志
+train/logs/*.log
+train/logs/*.log.*
+.workbuddy/

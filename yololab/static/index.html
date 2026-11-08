@@ -1,0 +1,870 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>YOLO 实时标注台 · yololab</title>
+<style>
+  :root{
+    --bg:#f4f5f7; --panel:#ffffff; --line:#e3e6ea; --line-strong:#cfd5dc;
+    --text:#14181d; --muted:#69727d; --accent:#2563eb; --accent-soft:#eaf1ff;
+    --ok:#0f9d58; --warn:#d97706; --radius:10px;
+    --shadow:0 1px 2px rgba(16,24,40,.05), 0 8px 24px rgba(16,24,40,.06);
+  }
+  *{box-sizing:border-box}
+  [hidden]{display:none !important}
+  html,body{height:100%}
+  body{
+    margin:0; background:var(--bg); color:var(--text);
+    font:14px/1.5 -apple-system,BlinkMacSystemFont,"Segoe UI","Microsoft YaHei",sans-serif;
+    display:flex; flex-direction:column; overflow:hidden;
+  }
+  /* ---------- 顶栏 ---------- */
+  header{
+    display:flex; align-items:center; gap:16px; padding:10px 18px;
+    background:var(--panel); border-bottom:1px solid var(--line); flex:0 0 auto;
+  }
+  .brand{display:flex; align-items:center; gap:10px; min-width:0}
+  .mark{
+    width:32px; height:32px; border-radius:9px; flex:0 0 auto;
+    background:linear-gradient(135deg,#1d4ed8,#4f8bff); color:#fff;
+    display:grid; place-items:center; font-size:15px; font-weight:700;
+    box-shadow:0 2px 8px rgba(37,99,235,.35);
+  }
+  .brand h1{margin:0; font-size:15px; font-weight:650; letter-spacing:.2px}
+  .brand p{margin:0; font-size:11.5px; color:var(--muted)}
+  .top-right{margin-left:auto; display:flex; align-items:center; gap:10px; min-width:0}
+  .field{display:flex; align-items:center; gap:6px; font-size:12px; color:var(--muted)}
+  select,input[type=number]{
+    font:inherit; font-size:12.5px; color:var(--text);
+    background:#fff; border:1px solid var(--line-strong); border-radius:7px;
+    padding:5px 8px; max-width:280px;
+  }
+  select:focus,input:focus{outline:2px solid var(--accent-soft); border-color:var(--accent)}
+  .badge{
+    font-size:11.5px; color:var(--muted); background:#f1f3f5;
+    border:1px solid var(--line); border-radius:999px; padding:2px 9px; white-space:nowrap;
+  }
+  .badge b{color:var(--text); font-weight:600}
+
+  /* ---------- 主体 ---------- */
+  main{flex:1; display:grid; grid-template-columns:minmax(0,1fr) 330px; min-height:0}
+  .stage{display:flex; flex-direction:column; min-width:0; min-height:0; padding:12px 12px 10px 14px; gap:10px}
+
+  .tabs{display:flex; align-items:center; gap:6px; flex-wrap:wrap}
+  .tab{
+    border:1px solid var(--line); background:#fff; color:var(--muted);
+    padding:6px 14px; border-radius:8px; font:inherit; font-size:12.5px; cursor:pointer;
+  }
+  .tab:hover{border-color:var(--line-strong); color:var(--text)}
+  .tab.active{background:var(--accent-soft); border-color:#c7d9ff; color:#1d4ed8; font-weight:600}
+  .tabs .spacer{flex:1}
+  .btn{
+    border:1px solid var(--line-strong); background:#fff; color:var(--text);
+    padding:6px 12px; border-radius:8px; font:inherit; font-size:12.5px; cursor:pointer;
+    display:inline-flex; align-items:center; gap:6px; white-space:nowrap;
+  }
+  .btn:hover{background:#f8fafc}
+  .btn:disabled{opacity:.45; cursor:not-allowed}
+  .btn.primary{background:var(--accent); border-color:var(--accent); color:#fff}
+  .btn.primary:hover{background:#1d4ed8}
+  .btn.danger{color:#b42318; border-color:#f3c0bb}
+  .btn.danger:hover{background:#fff5f4}
+  .btn.sm{padding:4px 9px; font-size:12px}
+
+  /* ---------- 控制条 ---------- */
+  .controls{
+    display:flex; align-items:center; gap:14px; flex-wrap:wrap;
+    background:var(--panel); border:1px solid var(--line); border-radius:var(--radius);
+    padding:8px 12px; box-shadow:var(--shadow);
+  }
+  .ctl{display:flex; align-items:center; gap:7px; font-size:12px; color:var(--muted)}
+  .ctl label{white-space:nowrap}
+  .ctl b{color:var(--text); font-weight:600; font-variant-numeric:tabular-nums; min-width:34px; text-align:right}
+  input[type=range]{
+    -webkit-appearance:none; width:104px; height:16px; background:transparent; cursor:pointer;
+  }
+  input[type=range]::-webkit-slider-runnable-track{height:4px; background:#dde2e8; border-radius:3px}
+  input[type=range]::-webkit-slider-thumb{
+    -webkit-appearance:none; width:13px; height:13px; border-radius:50%;
+    background:var(--accent); margin-top:-4.5px; border:2px solid #fff;
+    box-shadow:0 1px 3px rgba(0,0,0,.25);
+  }
+  .switch{display:inline-flex; align-items:center; gap:6px; font-size:12.5px; color:var(--muted); cursor:pointer; user-select:none}
+  .switch input{accent-color:var(--accent); width:14px; height:14px; cursor:pointer}
+
+  /* ---------- 画布 ---------- */
+  .viewport{
+    position:relative; flex:1; min-height:0; overflow:hidden;
+    background:
+      linear-gradient(45deg,#eceff3 25%,transparent 25%,transparent 75%,#eceff3 75%),
+      linear-gradient(45deg,#eceff3 25%,#f7f8fa 25%,#f7f8fa 75%,#eceff3 75%);
+    background-size:18px 18px; background-position:0 0,9px 9px;
+    border:1px solid var(--line); border-radius:var(--radius);
+    display:grid; place-items:center; box-shadow:var(--shadow);
+  }
+  #canvas{display:block; border-radius:4px; background:#fff; box-shadow:0 2px 12px rgba(16,24,40,.12); cursor:crosshair}
+  #canvas[hidden]{display:none}
+  .empty{
+    text-align:center; color:var(--muted); padding:28px; max-width:520px;
+    border:1.5px dashed var(--line-strong); border-radius:14px; background:rgba(255,255,255,.72);
+  }
+  .empty h3{margin:0 0 6px; font-size:14px; color:var(--text); font-weight:650}
+  .empty p{margin:0 0 12px; font-size:12.5px; line-height:1.7}
+  kbd{
+    font:inherit; font-size:11.5px; background:#fff; border:1px solid var(--line-strong);
+    border-bottom-width:2px; border-radius:5px; padding:1px 5px; color:var(--text);
+  }
+  .samples{display:flex; gap:8px; justify-content:center; flex-wrap:wrap; margin-top:10px}
+  .sample{
+    border:1px solid var(--line); background:#fff; border-radius:8px; overflow:hidden;
+    cursor:pointer; padding:0; width:112px;
+  }
+  .sample img{display:block; width:100%; height:64px; object-fit:cover}
+  .sample span{display:block; font-size:10.5px; color:var(--muted); padding:3px 4px; text-align:center;
+    white-space:nowrap; overflow:hidden; text-overflow:ellipsis}
+  .sample:hover{border-color:var(--accent)}
+
+  .live-wrap{position:absolute; inset:0; display:grid; place-items:center; padding:10px}
+  .live-wrap[hidden]{display:none}
+  .live-wrap img{max-width:100%; max-height:100%; border-radius:4px; background:#fff; box-shadow:0 2px 12px rgba(16,24,40,.12)}
+  .live-off{
+    position:absolute; inset:0; display:grid; place-items:center; text-align:center;
+    color:var(--muted); font-size:13px; background:rgba(247,248,250,.86);
+  }
+  .live-off[hidden]{display:none}
+  .live-off .inner{display:flex; flex-direction:column; align-items:center; gap:10px}
+  .rec{display:inline-flex; align-items:center; gap:6px; font-size:11.5px; color:#b42318; font-weight:600}
+  .dot{width:7px; height:7px; border-radius:50%; background:#e5484d; animation:pulse 1.4s infinite}
+  @keyframes pulse{0%,100%{opacity:1}50%{opacity:.25}}
+
+  /* ---------- 侧栏 ---------- */
+  aside{
+    border-left:1px solid var(--line); background:var(--panel);
+    display:flex; flex-direction:column; min-height:0;
+  }
+  .panel{padding:11px 14px; border-bottom:1px solid var(--line)}
+  .panel:last-child{border-bottom:none}
+  .panel-head{display:flex; align-items:center; justify-content:space-between; gap:8px; margin-bottom:8px}
+  .panel-head h2{margin:0; font-size:11.5px; letter-spacing:.6px; text-transform:uppercase; color:var(--muted); font-weight:650}
+  .metrics{display:grid; grid-template-columns:1fr 1fr; gap:8px}
+  .metric{background:#f8f9fb; border:1px solid var(--line); border-radius:8px; padding:7px 9px}
+  .metric span{display:block; font-size:10.5px; color:var(--muted)}
+  .metric b{font-size:17px; font-weight:650; font-variant-numeric:tabular-nums; letter-spacing:-.3px}
+  .metric b i{font-style:normal; font-size:11px; color:var(--muted); font-weight:500; margin-left:2px}
+
+  .scroll{overflow-y:auto; min-height:0}
+  .scroll::-webkit-scrollbar{width:8px}
+  .scroll::-webkit-scrollbar-thumb{background:#d8dde3; border-radius:4px}
+
+  .cls-list{display:flex; flex-direction:column; gap:1px}
+  .cls-row{
+    display:flex; align-items:center; gap:8px; padding:4px 6px; border-radius:6px;
+    cursor:pointer; font-size:12.5px;
+  }
+  .cls-row:hover{background:#f4f6f9}
+  .cls-row.off{opacity:.38}
+  .swatch{width:8px; height:8px; border-radius:2px; flex:0 0 auto}
+  .cls-name{flex:1; min-width:0; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .cls-count{color:var(--muted); font-variant-numeric:tabular-nums; font-size:12px}
+
+  .det-list{display:flex; flex-direction:column; gap:2px}
+  .det-row{
+    display:grid; grid-template-columns:3px 1fr auto; gap:8px; align-items:center;
+    padding:5px 6px; border-radius:6px; cursor:default;
+  }
+  .det-row:hover,.det-row.hot{background:var(--accent-soft)}
+  .det-bar{align-self:stretch; border-radius:2px}
+  .det-main{min-width:0}
+  .det-name{font-size:12.5px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap}
+  .det-sub{font-size:10.5px; color:var(--muted); font-variant-numeric:tabular-nums}
+  .det-conf{
+    font-size:11.5px; font-variant-numeric:tabular-nums; font-weight:600;
+    background:#eef1f5; border-radius:5px; padding:1px 6px;
+  }
+  .foot{padding:10px 14px; border-top:1px solid var(--line); display:flex; gap:8px}
+  .foot .btn{flex:1; justify-content:center}
+  .hint{font-size:11px; color:var(--muted); line-height:1.6}
+  .statusbar{
+    flex:0 0 auto; display:flex; align-items:center; gap:12px; padding:0 16px 8px;
+    font-size:11.5px; color:var(--muted);
+  }
+  .statusbar .sep{opacity:.5}
+  .statusbar b{color:var(--text); font-weight:600}
+  .toast{
+    position:fixed; left:50%; bottom:22px; transform:translate(-50%,12px);
+    background:#14181d; color:#fff; font-size:12.5px; padding:8px 14px; border-radius:8px;
+    opacity:0; pointer-events:none; transition:.18s ease; z-index:50; max-width:80vw;
+  }
+  .toast.show{opacity:1; transform:translate(-50%,0)}
+  .toast.err{background:#b42318}
+  @media (max-width:980px){
+    main{grid-template-columns:1fr; grid-template-rows:1fr auto}
+    aside{max-height:44vh}
+  }
+</style>
+</head>
+<body>
+<header>
+  <div class="brand">
+    <div class="mark">Y</div>
+    <div>
+      <h1>YOLO 实时标注台</h1>
+      <p>yololab · 独立验收页，不挂在 wztool webui 上</p>
+    </div>
+  </div>
+  <div class="top-right">
+    <div class="field"><span>权重</span><select id="modelSelect"></select></div>
+    <div class="badge"><b id="badgeClasses">—</b> 类</div>
+    <div class="badge" id="badgeDevice">cpu</div>
+  </div>
+</header>
+
+<main>
+  <section class="stage">
+    <div class="tabs">
+      <button class="tab active" data-mode="image">图片检测</button>
+      <button class="tab" data-mode="live">实时屏幕</button>
+      <span class="spacer"></span>
+      <input type="file" id="fileInput" accept="image/*" hidden>
+      <button class="btn" id="btnOpen">打开图片</button>
+      <button class="btn" id="btnSample">示例截图</button>
+      <button class="btn" id="btnFreeze" hidden>冻结此帧</button>
+      <button class="btn primary" id="btnLive">开始实时检测</button>
+    </div>
+
+    <div class="controls">
+      <div class="ctl"><label>置信度</label><input type="range" id="conf" min="0.05" max="0.9" step="0.01" value="0.35"><b id="confVal">0.35</b></div>
+      <div class="ctl"><label>IoU</label><input type="range" id="iou" min="0.1" max="0.9" step="0.05" value="0.45"><b id="iouVal">0.45</b></div>
+      <div class="ctl"><label>推理尺寸</label>
+        <select id="imgsz"><option>960</option><option>1152</option><option selected>1366</option><option>1536</option></select>
+      </div>
+      <div class="ctl" id="srcCtl" hidden><label>画面来源</label><select id="sourceSelect"></select></div>
+      <div class="ctl" id="fpsCtl" hidden><label>帧率</label>
+        <select id="fps"><option>4</option><option>6</option><option selected>8</option><option>12</option><option>15</option></select>
+      </div>
+      <label class="switch"><input type="checkbox" id="onlyTargets"> 只看目标（隐藏地形）</label>
+      <label class="switch"><input type="checkbox" id="showLabels" checked> 显示标签</label>
+      <label class="switch"><input type="checkbox" id="showConf" checked> 置信度</label>
+    </div>
+
+    <div class="viewport" id="viewport">
+      <canvas id="canvas" hidden></canvas>
+      <div class="empty" id="empty">
+        <h3>把游戏截图拖进来，或直接 Ctrl+V 粘贴</h3>
+        <p>模型会实时把认到的目标画在图上。也可以切到「实时屏幕」，
+           让它盯着游戏窗口逐帧推理，边玩边看准不准。</p>
+        <div class="samples" id="samples"></div>
+      </div>
+      <div class="live-wrap" id="liveWrap" hidden>
+        <img id="liveImg" alt="实时画面">
+        <div class="live-off" id="liveOff">
+          <div class="inner">
+            <div class="rec"><span class="dot"></span>实时画面未开始</div>
+            <div>点右上角「开始实时检测」抓取游戏窗口</div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <aside>
+    <div class="panel">
+      <div class="panel-head"><h2>指标</h2><span class="hint" id="modelName">—</span></div>
+      <div class="metrics">
+        <div class="metric"><span>目标数</span><b id="mCount">0</b></div>
+        <div class="metric"><span>类别数</span><b id="mClasses">0</b></div>
+        <div class="metric"><span>推理耗时</span><b id="mMs">—<i>ms</i></b></div>
+        <div class="metric"><span>帧率</span><b id="mFps">—<i>fps</i></b></div>
+      </div>
+    </div>
+
+    <div class="panel" style="padding-bottom:6px">
+      <div class="panel-head">
+        <h2>类别计数</h2>
+        <button class="btn sm" id="btnClearFilter">重置筛选</button>
+      </div>
+    </div>
+    <div class="scroll" style="max-height:30%">
+      <div class="cls-list" id="clsList" style="padding:0 10px 8px"></div>
+    </div>
+
+    <div class="panel" style="padding-bottom:6px; border-top:1px solid var(--line)">
+      <div class="panel-head"><h2>检测明细</h2><span class="hint" id="detCount"></span></div>
+    </div>
+    <div class="scroll" style="flex:1">
+      <div class="det-list" id="detList" style="padding:0 10px 10px"></div>
+    </div>
+
+    <div class="foot">
+      <button class="btn" id="btnExport">导出 JSON</button>
+      <button class="btn" id="btnReload">重新推理</button>
+    </div>
+  </aside>
+</main>
+
+<div class="statusbar">
+  <span id="stMode">图片检测</span><span class="sep">·</span>
+  <span>模型 <b id="stModel">—</b></span><span class="sep">·</span>
+  <span>画面 <b id="stSize">—</b></span><span class="sep">·</span>
+  <span id="stNote">等待图片</span>
+</div>
+<div class="toast" id="toast"></div>
+
+<script>
+const $ = (s) => document.querySelector(s);
+const canvas = $('#canvas'), ctx = canvas.getContext('2d');
+const viewport = $('#viewport'), emptyBox = $('#empty');
+const liveWrap = $('#liveWrap'), liveImg = $('#liveImg'), liveOff = $('#liveOff');
+
+const S = {
+  mode: 'image',
+  img: null,          // HTMLImageElement
+  dets: [],
+  counts: {},
+  ms: 0,
+  conf: 0.35, iou: 0.45, imgsz: 1366,
+  onlyTargets: false, showLabels: true, showConf: true,
+  hidden: new Set(),
+  hover: -1,
+  scale: 1,
+  liveRunning: false,
+  fps: 8,
+  size: [0, 0],
+  models: [],
+  samples: [],
+};
+
+const fmt = (n, d = 1) => (n === null || n === undefined || isNaN(n)) ? '—' : Number(n).toFixed(d);
+
+function toast(msg, isErr) {
+  const el = $('#toast');
+  el.textContent = msg;
+  el.className = 'toast show' + (isErr ? ' err' : '');
+  clearTimeout(el._t);
+  el._t = setTimeout(() => { el.className = 'toast'; }, 2600);
+}
+
+async function api(path, opts) {
+  const r = await fetch(path, opts);
+  const ct = r.headers.get('content-type') || '';
+  const data = ct.includes('json') ? await r.json() : await r.text();
+  if (!r.ok) throw new Error((data && data.error) || ('HTTP ' + r.status));
+  return data;
+}
+
+/* ------------------------------------------------ 模型列表 */
+async function loadConfig() {
+  const cfg = await api('/api/config');
+  S.models = cfg.models || [];
+  S.samples = cfg.samples || [];
+  const sel = $('#modelSelect');
+  sel.innerHTML = '';
+  if (!S.models.length) {
+    sel.innerHTML = '<option>未找到权重</option>';
+  }
+  for (const m of S.models) {
+    const o = document.createElement('option');
+    o.value = m.path;
+    o.textContent = `${m.name} · ${m.size_mb}MB` + (m.current ? ' ✓' : '');
+    sel.appendChild(o);
+  }
+  if (cfg.model) {
+    sel.value = cfg.model.path;
+    $('#badgeClasses').textContent = cfg.model.classes;
+    $('#badgeDevice').textContent = cfg.model.device || 'cpu';
+    $('#modelName').textContent = cfg.model.name;
+    $('#stModel').textContent = cfg.model.name;
+  }
+  renderWindows(cfg.windows || []);
+  renderSamples();
+}
+
+function renderSamples() {
+  const box = $('#samples');
+  box.innerHTML = '';
+  for (const name of S.samples.slice(0, 4)) {
+    const b = document.createElement('button');
+    b.className = 'sample';
+    b.innerHTML = `<img src="/samples/${encodeURIComponent(name)}" alt=""><span>${name}</span>`;
+    b.onclick = () => loadSample(name);
+    box.appendChild(b);
+  }
+}
+
+function renderWindows(wins) {
+  const sel = $('#sourceSelect');
+  sel.innerHTML = '';
+  const full = document.createElement('option');
+  full.value = 'screen';
+  full.textContent = '整屏（主显示器）';
+  sel.appendChild(full);
+  const games = wins.filter(w => w.game);
+  const rest = wins.filter(w => !w.game).slice(0, 6);
+  for (const w of [...games, ...rest]) {
+    const o = document.createElement('option');
+    o.value = String(w.hwnd);
+    o.dataset.title = w.title;
+    o.textContent = `窗口 · ${w.title.slice(0, 26)} (${w.w}×${w.h})${w.game ? '' : ''}`;
+    sel.appendChild(o);
+  }
+  if (games.length) sel.value = String(games[0].hwnd);
+}
+
+/* ------------------------------------------------ 图片模式 */
+function showImage() {
+  emptyBox.hidden = true;
+  canvas.hidden = false;
+  liveWrap.hidden = true;
+}
+
+async function loadBlob(blob, note) {
+  const url = URL.createObjectURL(blob);
+  const img = new Image();
+  await new Promise((res, rej) => { img.onload = res; img.onerror = rej; img.src = url; });
+  S.img = img;
+  S.hidden.clear();
+  S.hover = -1;
+  S.size = [img.naturalWidth, img.naturalHeight];
+  showImage();
+  layout();
+  $('#stSize').textContent = `${img.naturalWidth}×${img.naturalHeight}`;
+  $('#stNote').textContent = note || '推理中…';
+  await infer(blob);
+}
+
+function loadSample(name) {
+  setMode('image');
+  toast('载入 ' + name);
+  fetch('/samples/' + encodeURIComponent(name))
+    .then(r => r.blob())
+    .then(b => loadBlob(b, name))
+    .catch(e => toast('载入失败: ' + e.message, true));
+}
+
+async function readFile(file) {
+  if (!file || !file.type.startsWith('image/')) { toast('不是图片文件', true); return; }
+  setMode('image');
+  await loadBlob(file, file.name);
+}
+
+async function infer(blob) {
+  if (!blob || !S.img) return;
+  const t0 = performance.now();
+  try {
+    const q = `?conf=${S.conf}&iou=${S.iou}&imgsz=${S.imgsz}`;
+    const data = await api('/api/predict' + q, { method: 'POST', body: blob, headers: { 'Content-Type': blob.type || 'image/jpeg' } });
+    S.dets = data.detections || [];
+    S.counts = data.counts || {};
+    S.ms = data.ms;
+    S.lastNote = `推理完成 · ${S.dets.length} 个框 · ${data.ms}ms`;
+    $('#stNote').textContent = S.lastNote;
+  } catch (e) {
+    S.dets = []; S.counts = {}; S.ms = 0;
+    toast('推理失败: ' + e.message, true);
+    $('#stNote').textContent = '推理失败';
+  }
+  layout();
+  renderAll();
+}
+
+/* ------------------------------------------------ 画布布局与绘制 */
+function layout() {
+  if (!S.img) return;
+  const vp = viewport.getBoundingClientRect();
+  const padX = 34, padY = 26;
+  const availW = Math.max(120, vp.width - padX);
+  const availH = Math.max(120, vp.height - padY);
+  const s = Math.min(availW / S.img.naturalWidth, availH / S.img.naturalHeight, 1.6);
+  S.scale = s;
+  const cssW = Math.round(S.img.naturalWidth * s);
+  const cssH = Math.round(S.img.naturalHeight * s);
+  canvas.style.width = cssW + 'px';
+  canvas.style.height = cssH + 'px';
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = Math.round(cssW * dpr);
+  canvas.height = Math.round(cssH * dpr);
+  draw();
+}
+
+function visibleDets() {
+  return S.dets.filter(d => !S.hidden.has(d.name) && !(S.onlyTargets && d.terrain));
+}
+
+function draw() {
+  if (!S.img) return;
+  const dpr = window.devicePixelRatio || 1;
+  const k = dpr * S.scale;              // 每 1 图像像素对应多少设备像素
+  ctx.setTransform(1, 0, 0, 1, 0, 0);
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+  ctx.setTransform(k, 0, 0, k, 0, 0);
+  ctx.drawImage(S.img, 0, 0);
+
+  const dets = visibleDets();
+  const lw = Math.max(1.2, 2 / S.scale);
+  const fs = Math.max(9, 12 / S.scale);
+  ctx.font = `600 ${fs}px -apple-system,"Segoe UI","Microsoft YaHei",sans-serif`;
+  ctx.textBaseline = 'top';
+
+  dets.forEach((d, i) => {
+    const [x0, y0, x1, y1] = d.box;
+    const hot = i === S.hover;
+    ctx.lineWidth = hot ? lw * 2.2 : lw;
+    ctx.strokeStyle = d.color;
+    if (hot) { ctx.shadowColor = d.color; ctx.shadowBlur = 10 / S.scale; }
+    ctx.strokeRect(x0, y0, Math.max(1, x1 - x0), Math.max(1, y1 - y0));
+    ctx.shadowBlur = 0;
+
+    if (!S.showLabels) return;
+    let text = d.label;
+    if (S.showConf) text += ' ' + d.conf.toFixed(2);
+    const tw = ctx.measureText(text).width;
+    const th = fs * 1.5;
+    const padX2 = fs * 0.42;
+    let ty = y0 - th - 2 / S.scale;
+    if (ty < 0) ty = y0 + 2 / S.scale;
+    ctx.fillStyle = d.color;
+    roundRect(x0, ty, tw + padX2 * 2, th, 3 / S.scale);
+    ctx.fill();
+    ctx.fillStyle = '#fff';
+    ctx.fillText(text, x0 + padX2, ty + th * 0.2);
+  });
+}
+
+function roundRect(x, y, w, h, r) {
+  r = Math.min(r, h / 2, w / 2);
+  ctx.beginPath();
+  ctx.moveTo(x + r, y);
+  ctx.arcTo(x + w, y, x + w, y + h, r);
+  ctx.arcTo(x + w, y + h, x, y + h, r);
+  ctx.arcTo(x, y + h, x, y, r);
+  ctx.arcTo(x, y, x + w, y, r);
+  ctx.closePath();
+}
+
+/* ------------------------------------------------ 侧栏渲染 */
+function renderAll() {
+  const dets = visibleDets();
+  $('#mCount').textContent = dets.length;
+  $('#mClasses').textContent = new Set(dets.map(d => d.name)).size;
+  $('#mMs').innerHTML = (S.mode === 'image' ? fmt(S.ms) : fmt(S.ms)) + '<i>ms</i>';
+  if (S.mode === 'image') $('#mFps').innerHTML = '—<i>fps</i>';
+
+  // 类别计数（按全部检测统计，被筛选隐藏的也列出来，方便点回去）
+  const all = new Map();
+  for (const d of S.dets) {
+    const cur = all.get(d.name) || { name: d.name, label: d.label, color: d.color, terrain: d.terrain, n: 0 };
+    cur.n++;
+    all.set(d.name, cur);
+  }
+  const cls = [...all.values()].sort((a, b) => b.n - a.n);
+  const cl = $('#clsList');
+  cl.innerHTML = '';
+  if (!cls.length) cl.innerHTML = '<div class="hint" style="padding:6px 2px">暂无检测结果</div>';
+  for (const c of cls) {
+    const row = document.createElement('div');
+    row.className = 'cls-row' + (S.hidden.has(c.name) ? ' off' : '');
+    row.title = c.name + '（点击隐藏/显示）';
+    row.innerHTML = `<span class="swatch" style="background:${c.color}"></span>
+      <span class="cls-name">${esc(c.label)}</span><span class="cls-count">${c.n}</span>`;
+    row.onclick = () => {
+      if (S.hidden.has(c.name)) S.hidden.delete(c.name); else S.hidden.add(c.name);
+      draw(); renderAll();
+    };
+    cl.appendChild(row);
+  }
+
+  const dl = $('#detList');
+  dl.innerHTML = '';
+  $('#detCount').textContent = dets.length ? `${dets.length} 个` : '';
+  dets.forEach((d, i) => {
+    const row = document.createElement('div');
+    row.className = 'det-row' + (i === S.hover ? ' hot' : '');
+    const [x0, y0, x1, y1] = d.box;
+    const w = Math.round(x1 - x0), h = Math.round(y1 - y0);
+    row.innerHTML = `<span class="det-bar" style="background:${d.color}"></span>
+      <div class="det-main"><div class="det-name">${esc(d.label)}</div>
+      <div class="det-sub">${w}×${h} px${d.mob_id ? ' · id ' + d.mob_id : ''}</div></div>
+      <span class="det-conf">${d.conf.toFixed(2)}</span>`;
+    row.onmouseenter = () => { S.hover = i; draw(); markHot(i); };
+    row.onmouseleave = () => { S.hover = -1; draw(); markHot(-1); };
+    dl.appendChild(row);
+  });
+}
+
+function markHot(i) {
+  [...document.querySelectorAll('#detList .det-row')].forEach((el, idx) => {
+    el.classList.toggle('hot', idx === i);
+  });
+}
+
+const esc = (s) => String(s).replace(/[&<>"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;' }[c]));
+
+/* ------------------------------------------------ 实时模式 */
+async function startLive() {
+  const v = $('#sourceSelect').value;
+  const cfg = {
+    source: v === 'screen' ? 'screen' : 'window',
+    hwnd: v === 'screen' ? 0 : Number(v),
+    source_name: v === 'screen' ? '整屏' : ($('#sourceSelect').selectedOptions[0].dataset.title || '窗口'),
+    fps: Number($('#fps').value),
+    conf: S.conf, iou: S.iou, imgsz: S.imgsz,
+    only_targets: S.onlyTargets,
+    show_labels: S.showLabels, show_conf: S.showConf,
+  };
+  const btn = $('#btnLive');
+  btn.disabled = true;
+  btn.textContent = '启动中…';
+  try {
+    const r = await api('/api/live/start', {
+      method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify(cfg)
+    });
+    S.liveRunning = true;
+    $('#stNote').textContent = `实时检测中 · ${r.source === 'window' ? '窗口' : '整屏'}`;
+    liveOff.hidden = true;
+    liveImg.src = '/api/stream?t=' + Date.now();
+    btn.textContent = '停止实时检测';
+    btn.classList.add('danger'); btn.classList.remove('primary');
+    $('#btnFreeze').hidden = false;
+    clearInterval(S._poll);
+    S._poll = setInterval(pollLive, 500);
+    renderAll();
+  } catch (e) {
+    toast('启动失败: ' + e.message, true);
+    btn.textContent = '开始实时检测';
+  }
+  btn.disabled = false;
+}
+
+async function stopLive() {
+  await api('/api/live/stop', { method: 'POST' }).catch(() => {});
+  S.liveRunning = false;
+  clearInterval(S._poll);
+  liveImg.removeAttribute('src');
+  liveOff.hidden = false;
+  const btn = $('#btnLive');
+  btn.textContent = '开始实时检测';
+  btn.classList.remove('danger'); btn.classList.add('primary');
+  $('#btnFreeze').hidden = true;
+  $('#stNote').textContent = '实时检测已停止';
+  $('#mFps').innerHTML = '—<i>fps</i>';
+}
+
+async function pollLive() {
+  try {
+    const st = await api('/api/live/status');
+    if (st.error) { toast('实时检测出错: ' + st.error, true); }
+    if (!st.running) {
+      if (S.liveRunning) {
+        S.liveRunning = false;
+        clearInterval(S._poll);
+        const btn = $('#btnLive');
+        btn.textContent = '开始实时检测';
+        btn.classList.remove('danger'); btn.classList.add('primary');
+        $('#btnFreeze').hidden = true;
+        liveOff.hidden = false;
+        $('#stNote').textContent = st.error ? ('已停止：' + st.error) : '实时检测已停止';
+      }
+      return;
+    }
+    S.ms = st.ms; S.fps = st.fps;
+    $('#mMs').innerHTML = fmt(st.ms, 0) + '<i>ms</i>';
+    $('#mFps').innerHTML = fmt(st.fps, 1) + '<i>fps</i>';
+    $('#mCount').textContent = st.count;
+    if (st.region) $('#stSize').textContent = `${st.region[2]}×${st.region[3]}`;
+    renderLiveClasses(st.classes || {});
+    $('#stNote').textContent = `实时检测中 · 第 ${st.frame} 帧`;
+  } catch (e) { /* 网络抖动忽略 */ }
+}
+
+function renderLiveClasses(list) {
+  const arr = Array.isArray(list) ? list
+    : Object.entries(list || {}).map(([label, n]) => ({ label, color: '#2563eb', n }));
+  $('#mClasses').textContent = arr.length;
+  const cl = $('#clsList');
+  cl.innerHTML = '';
+  if (!arr.length) { cl.innerHTML = '<div class="hint" style="padding:6px 2px">当前画面没有检测到目标</div>'; return; }
+  for (const c of arr) {
+    const row = document.createElement('div');
+    row.className = 'cls-row';
+    row.innerHTML = `<span class="swatch" style="background:${c.color}"></span>
+      <span class="cls-name">${esc(c.label)}</span><span class="cls-count">${c.n}</span>`;
+    cl.appendChild(row);
+  }
+  $('#detList').innerHTML = '';
+  $('#detCount').textContent = '';
+}
+
+async function freezeFrame() {
+  try {
+    const r = await fetch('/api/live/frame.jpg');
+    if (!r.ok) throw new Error('没有可冻结的画面');
+    const blob = await r.blob();
+    await stopLive();
+    setMode('image');
+    await loadBlob(blob, '实时画面快照');
+  } catch (e) { toast(e.message, true); }
+}
+
+/* ------------------------------------------------ 模式与交互 */
+function setMode(mode) {
+  if (mode === S.mode) return;
+  S.mode = mode;
+  document.querySelectorAll('.tab').forEach(t => t.classList.toggle('active', t.dataset.mode === mode));
+  const live = mode === 'live';
+  $('#srcCtl').hidden = !live;
+  $('#fpsCtl').hidden = !live;
+  $('#btnLive').hidden = false;
+  if (live) {
+    emptyBox.hidden = true;
+    canvas.hidden = true;
+    liveWrap.hidden = false;
+    $('#btnLive').textContent = S.liveRunning ? '停止实时检测' : '开始实时检测';
+    $('#btnLive').classList.toggle('primary', !S.liveRunning);
+    $('#btnFreeze').hidden = !S.liveRunning;
+    $('#stMode').textContent = '实时屏幕';
+    $('#stNote').textContent = S.liveRunning ? '实时检测中' : '选择画面来源后开始';
+    $('#detList').innerHTML = '';
+    $('#detCount').textContent = '';
+    $('#mCount').textContent = '0';
+    $('#mClasses').textContent = '0';
+    $('#mMs').innerHTML = '—<i>ms</i>';
+    $('#mFps').innerHTML = '—<i>fps</i>';
+    if (!S.liveRunning) $('#clsList').innerHTML = '<div class="hint" style="padding:6px 2px">开始实时检测后显示</div>';
+  } else {
+    if (S.img) { canvas.hidden = false; liveWrap.hidden = true; }
+    else { emptyBox.hidden = false; canvas.hidden = true; liveWrap.hidden = true; }
+    $('#stMode').textContent = '图片检测';
+    $('#btnFreeze').hidden = true;
+    $('#stNote').textContent = S.lastNote || (S.img ? '已载入图片' : '等待图片');
+    if (S.dets.length) renderAll();
+  }
+}
+
+document.querySelectorAll('.tab').forEach(t => t.onclick = () => setMode(t.dataset.mode));
+
+$('#btnLive').onclick = () => {
+  if (S.liveRunning) { stopLive(); return; }
+  if (S.mode !== 'live') setMode('live');
+  startLive();
+};
+$('#btnFreeze').onclick = freezeFrame;
+$('#btnOpen').onclick = () => $('#fileInput').click();
+$('#fileInput').onchange = (e) => { if (e.target.files[0]) readFile(e.target.files[0]); e.target.value = ''; };
+$('#btnSample').onclick = () => { if (S.samples.length) loadSample(S.samples[0]); else toast('yololab/samples 里没有图片', true); };
+$('#btnReload').onclick = () => {
+  if (S.mode === 'live') { if (S.liveRunning) { stopLive().then(startLive); } else startLive(); return; }
+  if (!S.img) { toast('先打开一张图片'); return; }
+  fetch(S.img.src).then(r => r.blob()).then(infer);
+};
+$('#btnClearFilter').onclick = () => { S.hidden.clear(); $('#onlyTargets').checked = false; S.onlyTargets = false; draw(); renderAll(); };
+$('#btnExport').onclick = () => {
+  const data = { model: $('#stModel').textContent, image_size: S.size, conf: S.conf, iou: S.iou, imgsz: S.imgsz, detections: S.dets };
+  const blob = new Blob([JSON.stringify(data, null, 1)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'yololab_detections.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+};
+
+$('#modelSelect').onchange = async (e) => {
+  const path = e.target.value;
+  toast('加载权重…');
+  try {
+    const r = await api('/api/model', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ path }) });
+    $('#badgeClasses').textContent = r.model.classes;
+    $('#badgeDevice').textContent = r.model.device;
+    $('#modelName').textContent = r.model.name;
+    $('#stModel').textContent = r.model.name;
+    toast('已切换到 ' + r.model.name);
+    if (S.mode === 'image' && S.img) fetch(S.img.src).then(x => x.blob()).then(infer);
+    else if (S.liveRunning) { await stopLive(); startLive(); }
+  } catch (err) { toast('切换失败: ' + err.message, true); }
+};
+
+function bindRange(id, key) {
+  const el = $('#' + id), out = $('#' + id + 'Val');
+  el.oninput = () => {
+    S[key] = Number(el.value);
+    out.textContent = el.value;
+    clearTimeout(S._deb);
+    S._deb = setTimeout(() => {
+      if (S.mode === 'live' && S.liveRunning) { stopLive().then(startLive); }
+      else if (S.img) { $('#stNote').textContent = '推理中…'; fetch(S.img.src).then(r => r.blob()).then(infer); }
+    }, 260);
+  };
+}
+bindRange('conf', 'conf');
+bindRange('iou', 'iou');
+
+$('#imgsz').onchange = (e) => {
+  S.imgsz = Number(e.target.value);
+  if (S.mode === 'live' && S.liveRunning) stopLive().then(startLive);
+  else if (S.img) fetch(S.img.src).then(r => r.blob()).then(infer);
+};
+
+$('#onlyTargets').onchange = (e) => {
+  S.onlyTargets = e.target.checked;
+  if (S.mode === 'live' && S.liveRunning) { stopLive().then(startLive); }
+  else { draw(); renderAll(); }
+};
+$('#showLabels').onchange = (e) => {
+  S.showLabels = e.target.checked;
+  if (S.mode === 'live' && S.liveRunning) stopLive().then(startLive); else draw();
+};
+$('#showConf').onchange = (e) => {
+  S.showConf = e.target.checked;
+  if (S.mode === 'live' && S.liveRunning) stopLive().then(startLive); else draw();
+};
+
+/* 画布悬停高亮 */
+canvas.addEventListener('mousemove', (e) => {
+  if (!S.img) return;
+  const r = canvas.getBoundingClientRect();
+  const x = (e.clientX - r.left) / r.width * S.img.naturalWidth;
+  const y = (e.clientY - r.top) / r.height * S.img.naturalHeight;
+  const dets = visibleDets();
+  let idx = -1;
+  for (let i = dets.length - 1; i >= 0; i--) {
+    const [x0, y0, x1, y1] = dets[i].box;
+    if (x >= x0 && x <= x1 && y >= y0 && y <= y1) { idx = i; break; }
+  }
+  if (idx !== S.hover) { S.hover = idx; draw(); markHot(idx); }
+});
+canvas.addEventListener('mouseleave', () => { S.hover = -1; draw(); markHot(-1); });
+
+/* 拖拽 / 粘贴 */
+['dragenter', 'dragover'].forEach(ev => window.addEventListener(ev, (e) => { e.preventDefault(); }));
+window.addEventListener('drop', (e) => {
+  e.preventDefault();
+  const f = e.dataTransfer.files && e.dataTransfer.files[0];
+  if (f) readFile(f);
+});
+window.addEventListener('paste', (e) => {
+  const items = (e.clipboardData || {}).items || [];
+  for (const it of items) {
+    if (it.type && it.type.startsWith('image/')) {
+      const f = it.getAsFile();
+      if (f) { readFile(f); return; }
+    }
+  }
+});
+
+new ResizeObserver(() => { if (S.mode === 'image') layout(); }).observe(viewport);
+
+/* 启动 */
+(async () => {
+  try {
+    await loadConfig();
+    if (S.samples.length) {
+      const first = S.samples.find(s => /screen|shot|game/i.test(s)) || S.samples[0];
+      loadSample(first);
+    }
+  } catch (e) {
+    toast('初始化失败: ' + e.message, true);
+  }
+})();
+</script>
+</body>
+</html>
